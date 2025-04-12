@@ -1,5 +1,7 @@
 # Terraform Practice
 
+Repo for practicing and playing the Terraform IaC tool.
+
 ---
 
 ### Using infracost
