@@ -94,3 +94,84 @@ graph TD
     - Terraform can read attributes of existing infrastructure components by configuring data sources
       - This can later be used for configuring other resources within Terraform
       - Terraform can also import other resources outside of Terraform that were created manually or by the means of other IaC tools and bring it under its control so that it can manage those resources going forward.
+
+# Terminology
+- What is a **resource**?
+  - A resource is an object which terraform manages. *This could be a lot of things*
+
+# HCL syntax
+- Consists of blocks and arguments
+
+```hcl
+
+<block> <parameters> {
+  key1 = value1
+  key2 = value2
+}
+
+
+```
+
+A block in terraform contains information about the infrastructure plaform and a set of resources within that platform that we want to create.
+
+```hcl
+
+resource "local_file" "pet" {
+  filename = "/root/pets.txt"
+  content = "We love pets!"
+}
+
+###### Cloud based example
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_instance" "webserver" {
+  ami = "ami-234234987"
+  instance_type = "t2.micro"
+}
+
+# 1. Create an S3 bucket (if you don’t already have one)
+resource "aws_s3_bucket" "pets_bucket" {
+  bucket = "my-pets-bucket-123456" # Must be globally unique
+  force_destroy = true
+
+  tags = {
+    Name = "PetsBucket"
+  }
+}
+
+# 2. Upload the "We love pets!" content as a file
+resource "aws_s3_bucket_object" "pet" {
+  bucket  = aws_s3_bucket.pets_bucket.id
+  key     = "pets.txt"
+  content = "We love pets!"
+  acl     = "private"
+
+  tags = {
+    Purpose = "Pet Declaration"
+  }
+}
+
+```
+
+*Each resource type has specific arguments that they would expect*
+
+# Creating the resources
+- `terraform init`
+  - This will check the working directory containing the .tf file
+- `terraform plan`
+  - This command wil show that actions that will be carried out by Terraform to create the resource
+- `teraform apply`
+  - This will create the resource
+    - This command will display the execution plan again
+    - Ask for user confirmation
+    - Once confirmed it will create the resources
+- `terraform show`
+  - Use this command to see the details of the resource that was just created
+
+*terraform documentation is very comprehensive*
+
+# Updating and Destroying Infrastructure
+- `terraform destroy`
